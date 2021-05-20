@@ -49,18 +49,28 @@ type LocalFileFieldOutput implements FileFieldOutput {
   src: String!
 }
 
-input PhoneNumberRelateToManyInput {
-  create: [PhoneNumberCreateInput]
-  connect: [PhoneNumberWhereUniqueInput]
-  disconnect: [PhoneNumberWhereUniqueInput]
-  disconnectAll: Boolean
+input PhoneNumberRelateToManyForUpdateInput {
+  create: [PhoneNumberCreateInput!]! = []
+  connect: [PhoneNumberWhereUniqueInput!]! = []
+  disconnect: [PhoneNumberWhereUniqueInput!]! = []
+  disconnectAll: Boolean! = false
 }
 
-input PostRelateToManyInput {
-  create: [PostCreateInput]
-  connect: [PostWhereUniqueInput]
-  disconnect: [PostWhereUniqueInput]
-  disconnectAll: Boolean
+input PhoneNumberRelateToManyForCreateInput {
+  create: [PhoneNumberCreateInput!]! = []
+  connect: [PhoneNumberWhereUniqueInput!]! = []
+}
+
+input PostRelateToManyForUpdateInput {
+  create: [PostCreateInput!]! = []
+  connect: [PostWhereUniqueInput!]! = []
+  disconnect: [PostWhereUniqueInput!]! = []
+  disconnectAll: Boolean! = false
+}
+
+input PostRelateToManyForCreateInput {
+  create: [PostCreateInput!]! = []
+  connect: [PostWhereUniqueInput!]! = []
 }
 
 """
@@ -224,8 +234,8 @@ input UserUpdateInput {
   password: String
   isAdmin: Boolean
   roles: String
-  phoneNumbers: PhoneNumberRelateToManyInput
-  posts: PostRelateToManyInput
+  phoneNumbers: PhoneNumberRelateToManyForUpdateInput
+  posts: PostRelateToManyForUpdateInput
 }
 
 input UsersUpdateInput {
@@ -241,19 +251,22 @@ input UserCreateInput {
   password: String
   isAdmin: Boolean
   roles: String
-  phoneNumbers: PhoneNumberRelateToManyInput
-  posts: PostRelateToManyInput
+  phoneNumbers: PhoneNumberRelateToManyForCreateInput
+  posts: PostRelateToManyForCreateInput
 }
 
 input UsersCreateInput {
   data: UserCreateInput
 }
 
-input UserRelateToOneInput {
+input UserRelateToOneForUpdateInput {
   create: UserCreateInput
   connect: UserWhereUniqueInput
-  disconnect: UserWhereUniqueInput
-  disconnectAll: Boolean
+}
+
+input UserRelateToOneForCreateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
 }
 
 """
@@ -312,7 +325,7 @@ input PhoneNumberOrderByInput {
 }
 
 input PhoneNumberUpdateInput {
-  user: UserRelateToOneInput
+  user: UserRelateToOneForUpdateInput
   type: String
   value: String
 }
@@ -323,7 +336,7 @@ input PhoneNumbersUpdateInput {
 }
 
 input PhoneNumberCreateInput {
-  user: UserRelateToOneInput
+  user: UserRelateToOneForCreateInput
   type: String
   value: String
 }
@@ -408,7 +421,7 @@ input PostUpdateInput {
   status: String
   content: JSON
   publishDate: String
-  author: UserRelateToOneInput
+  author: UserRelateToOneForUpdateInput
 }
 
 input PostsUpdateInput {
@@ -421,7 +434,7 @@ input PostCreateInput {
   status: String
   content: JSON
   publishDate: String
-  author: UserRelateToOneInput
+  author: UserRelateToOneForCreateInput
 }
 
 input PostsCreateInput {

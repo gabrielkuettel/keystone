@@ -139,8 +139,10 @@ export class List implements BaseKeystoneList {
       createInputName: `${_itemQueryName}CreateInput`,
       updateManyInputName: `${_listQueryName}UpdateInput`,
       createManyInputName: `${_listQueryName}CreateInput`,
-      relateToManyInputName: `${_itemQueryName}RelateToManyInput`,
-      relateToOneInputName: `${_itemQueryName}RelateToOneInput`,
+      relateToManyForUpdateInputName: `${_itemQueryName}RelateToManyForUpdateInput`,
+      relateToManyForCreateInputName: `${_itemQueryName}RelateToManyForCreateInput`,
+      relateToOneForUpdateInputName: `${_itemQueryName}RelateToOneForUpdateInput`,
+      relateToOneForCreateInputName: `${_itemQueryName}RelateToOneForCreateInput`,
     };
 
     this.adapter = adapter.newListAdapter(this.key, adapterConfig, this.gqlNames);
@@ -668,10 +670,12 @@ export class List implements BaseKeystoneList {
       field => field.isRelationship
     ) as Relationship<any>[];
     const resolvedRelationships = await mapToFields(fields, async field => {
-      // Treat `null` as `undefined`, e.g. a no-op
-      if (data[field.path] === null) return undefined;
+      // Treat `null` as `disconnect` for single operations.
+      let operations = data[field.path];
+      if (operations === null && !field.many) operations = { disconnectAll: true };
+      if (operations === null) return undefined;
       const { create, connect, disconnect, currentValue } = await field.resolveNestedOperations(
-        data[field.path],
+        operations,
         existingItem,
         context,
         mutationState

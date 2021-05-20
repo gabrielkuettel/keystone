@@ -359,68 +359,22 @@ multiAdapterRunners().map(({ runner, provider }) =>
         );
 
         test(
-          'With disconnect',
-          runner(setupKeystone, async ({ context }) => {
-            // Manually setup a connected Company <-> Location
-            const { user, friend } = await createUserAndFriend(context);
-
-            // Run the query to disconnect the location from company
-            const _user = await context.lists.User.updateOne({
-              id: user.id,
-              data: { friend: { disconnect: { id: friend.id } } },
-              query: 'id friend { id name }',
-            });
-
-            expect(_user.id).toEqual(user.id);
-            expect(_user.friend).toBe(null);
-
-            // Check the link has been broken
-            const result = await getUserAndFriend(context, user.id, friend.id);
-            expect(result.User.friend).toBe(null);
-            expect(result.Friend.friendOf).toBe(null);
-          })
-        );
-
-        test(
-          'With disconnectAll',
-          runner(setupKeystone, async ({ context }) => {
-            // Manually setup a connected Company <-> Location
-            const { user, friend } = await createUserAndFriend(context);
-
-            // Run the query to disconnect the location from company
-            const _user = await context.lists.User.updateOne({
-              id: user.id,
-              data: { friend: { disconnectAll: true } },
-              query: 'id friend { id name }',
-            });
-
-            expect(_user.id).toEqual(user.id);
-            expect(_user.friend).toBe(null);
-
-            // Check the link has been broken
-            const result = await getUserAndFriend(context, user.id, friend.id);
-            expect(result.User.friend).toBe(null);
-            expect(result.Friend.friendOf).toBe(null);
-          })
-        );
-
-        test(
           'With null',
           runner(setupKeystone, async ({ context }) => {
             // Manually setup a connected Company <-> Location
             const { user, friend } = await createUserAndFriend(context);
 
             // Run the query with a null operation
-            const _user = await context.lists.User.updateOne({
+            await context.lists.User.updateOne({
               id: user.id,
               data: { friend: null },
               query: 'id friend { id name }',
             });
 
-            // Check that the friend is still there
-            expect(_user.id).toEqual(user.id);
-            expect(_user.friend).not.toBe(null);
-            expect(_user.friend.id).toEqual(friend.id);
+            // Check the link has been broken
+            const result = await getUserAndFriend(context, user.id, friend.id);
+            expect(result.User.friend).toBe(null);
+            expect(result.Friend.friendOf).toBe(null);
           })
         );
       });

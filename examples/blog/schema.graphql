@@ -3,11 +3,14 @@ enum PostStatusType {
   published
 }
 
-input AuthorRelateToOneInput {
+input AuthorRelateToOneForUpdateInput {
   create: AuthorCreateInput
   connect: AuthorWhereUniqueInput
-  disconnect: AuthorWhereUniqueInput
-  disconnectAll: Boolean
+}
+
+input AuthorRelateToOneForCreateInput {
+  create: AuthorCreateInput
+  connect: AuthorWhereUniqueInput
 }
 
 """
@@ -96,7 +99,7 @@ input PostUpdateInput {
   status: PostStatusType
   content: String
   publishDate: String
-  author: AuthorRelateToOneInput
+  author: AuthorRelateToOneForUpdateInput
 }
 
 input PostsUpdateInput {
@@ -109,18 +112,23 @@ input PostCreateInput {
   status: PostStatusType
   content: String
   publishDate: String
-  author: AuthorRelateToOneInput
+  author: AuthorRelateToOneForCreateInput
 }
 
 input PostsCreateInput {
   data: PostCreateInput
 }
 
-input PostRelateToManyInput {
-  create: [PostCreateInput]
-  connect: [PostWhereUniqueInput]
-  disconnect: [PostWhereUniqueInput]
-  disconnectAll: Boolean
+input PostRelateToManyForUpdateInput {
+  create: [PostCreateInput!]! = []
+  connect: [PostWhereUniqueInput!]! = []
+  disconnect: [PostWhereUniqueInput!]! = []
+  disconnectAll: Boolean! = false
+}
+
+input PostRelateToManyForCreateInput {
+  create: [PostCreateInput!]! = []
+  connect: [PostWhereUniqueInput!]! = []
 }
 
 """
@@ -216,7 +224,7 @@ input AuthorOrderByInput {
 input AuthorUpdateInput {
   name: String
   email: String
-  posts: PostRelateToManyInput
+  posts: PostRelateToManyForUpdateInput
 }
 
 input AuthorsUpdateInput {
@@ -227,7 +235,7 @@ input AuthorsUpdateInput {
 input AuthorCreateInput {
   name: String
   email: String
-  posts: PostRelateToManyInput
+  posts: PostRelateToManyForCreateInput
 }
 
 input AuthorsCreateInput {

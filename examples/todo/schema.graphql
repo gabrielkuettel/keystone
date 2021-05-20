@@ -4,11 +4,14 @@ enum TaskPriorityType {
   high
 }
 
-input PersonRelateToOneInput {
+input PersonRelateToOneForUpdateInput {
   create: PersonCreateInput
   connect: PersonWhereUniqueInput
-  disconnect: PersonWhereUniqueInput
-  disconnectAll: Boolean
+}
+
+input PersonRelateToOneForCreateInput {
+  create: PersonCreateInput
+  connect: PersonWhereUniqueInput
 }
 
 """
@@ -92,7 +95,7 @@ input TaskUpdateInput {
   label: String
   priority: TaskPriorityType
   isComplete: Boolean
-  assignedTo: PersonRelateToOneInput
+  assignedTo: PersonRelateToOneForUpdateInput
   finishBy: String
 }
 
@@ -105,7 +108,7 @@ input TaskCreateInput {
   label: String
   priority: TaskPriorityType
   isComplete: Boolean
-  assignedTo: PersonRelateToOneInput
+  assignedTo: PersonRelateToOneForCreateInput
   finishBy: String
 }
 
@@ -113,11 +116,16 @@ input TasksCreateInput {
   data: TaskCreateInput
 }
 
-input TaskRelateToManyInput {
-  create: [TaskCreateInput]
-  connect: [TaskWhereUniqueInput]
-  disconnect: [TaskWhereUniqueInput]
-  disconnectAll: Boolean
+input TaskRelateToManyForUpdateInput {
+  create: [TaskCreateInput!]! = []
+  connect: [TaskWhereUniqueInput!]! = []
+  disconnect: [TaskWhereUniqueInput!]! = []
+  disconnectAll: Boolean! = false
+}
+
+input TaskRelateToManyForCreateInput {
+  create: [TaskCreateInput!]! = []
+  connect: [TaskWhereUniqueInput!]! = []
 }
 
 """
@@ -202,7 +210,7 @@ input PersonOrderByInput {
 
 input PersonUpdateInput {
   name: String
-  tasks: TaskRelateToManyInput
+  tasks: TaskRelateToManyForUpdateInput
 }
 
 input PeopleUpdateInput {
@@ -212,7 +220,7 @@ input PeopleUpdateInput {
 
 input PersonCreateInput {
   name: String
-  tasks: TaskRelateToManyInput
+  tasks: TaskRelateToManyForCreateInput
 }
 
 input PeopleCreateInput {

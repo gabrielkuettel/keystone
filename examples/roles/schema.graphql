@@ -1,8 +1,11 @@
-input PersonRelateToOneInput {
+input PersonRelateToOneForUpdateInput {
   create: PersonCreateInput
   connect: PersonWhereUniqueInput
-  disconnect: PersonWhereUniqueInput
-  disconnectAll: Boolean
+}
+
+input PersonRelateToOneForCreateInput {
+  create: PersonCreateInput
+  connect: PersonWhereUniqueInput
 }
 
 """
@@ -72,7 +75,7 @@ input TodoUpdateInput {
   label: String
   isComplete: Boolean
   isPrivate: Boolean
-  assignedTo: PersonRelateToOneInput
+  assignedTo: PersonRelateToOneForUpdateInput
 }
 
 input TodosUpdateInput {
@@ -84,25 +87,33 @@ input TodoCreateInput {
   label: String
   isComplete: Boolean
   isPrivate: Boolean
-  assignedTo: PersonRelateToOneInput
+  assignedTo: PersonRelateToOneForCreateInput
 }
 
 input TodosCreateInput {
   data: TodoCreateInput
 }
 
-input RoleRelateToOneInput {
+input RoleRelateToOneForUpdateInput {
   create: RoleCreateInput
   connect: RoleWhereUniqueInput
-  disconnect: RoleWhereUniqueInput
-  disconnectAll: Boolean
 }
 
-input TodoRelateToManyInput {
-  create: [TodoCreateInput]
-  connect: [TodoWhereUniqueInput]
-  disconnect: [TodoWhereUniqueInput]
-  disconnectAll: Boolean
+input RoleRelateToOneForCreateInput {
+  create: RoleCreateInput
+  connect: RoleWhereUniqueInput
+}
+
+input TodoRelateToManyForUpdateInput {
+  create: [TodoCreateInput!]! = []
+  connect: [TodoWhereUniqueInput!]! = []
+  disconnect: [TodoWhereUniqueInput!]! = []
+  disconnectAll: Boolean! = false
+}
+
+input TodoRelateToManyForCreateInput {
+  create: [TodoCreateInput!]! = []
+  connect: [TodoWhereUniqueInput!]! = []
 }
 
 """
@@ -204,8 +215,8 @@ input PersonUpdateInput {
   name: String
   email: String
   password: String
-  role: RoleRelateToOneInput
-  tasks: TodoRelateToManyInput
+  role: RoleRelateToOneForUpdateInput
+  tasks: TodoRelateToManyForUpdateInput
 }
 
 input PeopleUpdateInput {
@@ -217,19 +228,24 @@ input PersonCreateInput {
   name: String
   email: String
   password: String
-  role: RoleRelateToOneInput
-  tasks: TodoRelateToManyInput
+  role: RoleRelateToOneForCreateInput
+  tasks: TodoRelateToManyForCreateInput
 }
 
 input PeopleCreateInput {
   data: PersonCreateInput
 }
 
-input PersonRelateToManyInput {
-  create: [PersonCreateInput]
-  connect: [PersonWhereUniqueInput]
-  disconnect: [PersonWhereUniqueInput]
-  disconnectAll: Boolean
+input PersonRelateToManyForUpdateInput {
+  create: [PersonCreateInput!]! = []
+  connect: [PersonWhereUniqueInput!]! = []
+  disconnect: [PersonWhereUniqueInput!]! = []
+  disconnectAll: Boolean! = false
+}
+
+input PersonRelateToManyForCreateInput {
+  create: [PersonCreateInput!]! = []
+  connect: [PersonWhereUniqueInput!]! = []
 }
 
 """
@@ -356,7 +372,7 @@ input RoleUpdateInput {
   canEditOtherPeople: Boolean
   canManagePeople: Boolean
   canManageRoles: Boolean
-  assignedTo: PersonRelateToManyInput
+  assignedTo: PersonRelateToManyForUpdateInput
 }
 
 input RolesUpdateInput {
@@ -372,7 +388,7 @@ input RoleCreateInput {
   canEditOtherPeople: Boolean
   canManagePeople: Boolean
   canManageRoles: Boolean
-  assignedTo: PersonRelateToManyInput
+  assignedTo: PersonRelateToManyForCreateInput
 }
 
 input RolesCreateInput {

@@ -1,8 +1,11 @@
-input UserRelateToOneInput {
+input UserRelateToOneForUpdateInput {
   create: UserCreateInput
   connect: UserWhereUniqueInput
-  disconnect: UserWhereUniqueInput
-  disconnectAll: Boolean
+}
+
+input UserRelateToOneForCreateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
 }
 
 """
@@ -101,7 +104,7 @@ enum OrderDirection {
 input TodoUpdateInput {
   label: String
   isComplete: Boolean
-  assignedTo: UserRelateToOneInput
+  assignedTo: UserRelateToOneForUpdateInput
   finishBy: String
 }
 
@@ -113,7 +116,7 @@ input TodosUpdateInput {
 input TodoCreateInput {
   label: String
   isComplete: Boolean
-  assignedTo: UserRelateToOneInput
+  assignedTo: UserRelateToOneForCreateInput
   finishBy: String
 }
 
@@ -121,11 +124,16 @@ input TodosCreateInput {
   data: TodoCreateInput
 }
 
-input TodoRelateToManyInput {
-  create: [TodoCreateInput]
-  connect: [TodoWhereUniqueInput]
-  disconnect: [TodoWhereUniqueInput]
-  disconnectAll: Boolean
+input TodoRelateToManyForUpdateInput {
+  create: [TodoCreateInput!]! = []
+  connect: [TodoWhereUniqueInput!]! = []
+  disconnect: [TodoWhereUniqueInput!]! = []
+  disconnectAll: Boolean! = false
+}
+
+input TodoRelateToManyForCreateInput {
+  create: [TodoCreateInput!]! = []
+  connect: [TodoWhereUniqueInput!]! = []
 }
 
 """
@@ -248,7 +256,7 @@ input UserUpdateInput {
   name: String
   email: String
   password: String
-  tasks: TodoRelateToManyInput
+  tasks: TodoRelateToManyForUpdateInput
 }
 
 input UsersUpdateInput {
@@ -260,7 +268,7 @@ input UserCreateInput {
   name: String
   email: String
   password: String
-  tasks: TodoRelateToManyInput
+  tasks: TodoRelateToManyForCreateInput
 }
 
 input UsersCreateInput {

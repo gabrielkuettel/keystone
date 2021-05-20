@@ -806,110 +806,22 @@ multiAdapterRunners().map(({ runner, provider }) =>
         );
 
         test(
-          'With disconnect A',
-          runner(setupKeystone, async ({ context }) => {
-            // Manually setup a connected Company <-> Location
-            const { location, company } = await createCompanyAndLocation(context);
-
-            // Run the query to disconnect the location from company
-            const _company = await context.lists.Company.updateOne({
-              id: company.id,
-              data: { location: { disconnect: { id: location.id } } },
-              query: 'id location { id name }',
-            });
-            expect(_company.id).toEqual(company.id);
-            expect(_company.location).toBe(null);
-
-            // Check the link has been broken
-            const result = await getCompanyAndLocation(context, company.id, location.id);
-            expect(result.Company.location).toBe(null);
-            expect(result.Location.company).toBe(null);
-          })
-        );
-
-        test(
-          'With disconnect B',
-          runner(setupKeystone, async ({ context }) => {
-            // Manually setup a connected Company <-> Location
-            const { location, company } = await createLocationAndCompany(context);
-
-            // Run the query to disconnect the location from company
-            const _location = await context.lists.Location.updateOne({
-              id: location.id,
-              data: { company: { disconnect: { id: company.id } } },
-              query: 'id company { id name }',
-            });
-
-            expect(_location.id).toEqual(location.id);
-            expect(_location.company).toBe(null);
-
-            // Check the link has been broken
-            const result = await getCompanyAndLocation(context, company.id, location.id);
-            expect(result.Company.location).toBe(null);
-            expect(result.Location.company).toBe(null);
-          })
-        );
-        test(
-          'With disconnectAll A',
-          runner(setupKeystone, async ({ context }) => {
-            // Manually setup a connected Company <-> Location
-            const { location, company } = await createCompanyAndLocation(context);
-
-            // Run the query to disconnect the location from company
-            const _company = await context.lists.Company.updateOne({
-              id: company.id,
-              data: { location: { disconnectAll: true } },
-              query: 'id location { id name }',
-            });
-            expect(_company.id).toEqual(company.id);
-            expect(_company.location).toBe(null);
-
-            // Check the link has been broken
-            const result = await getCompanyAndLocation(context, company.id, location.id);
-            expect(result.Company.location).toBe(null);
-            expect(result.Location.company).toBe(null);
-          })
-        );
-
-        test(
-          'With disconnectAll B',
-          runner(setupKeystone, async ({ context }) => {
-            // Manually setup a connected Company <-> Location
-            const { location, company } = await createLocationAndCompany(context);
-
-            // Run the query to disconnect the location from company
-            const _location = await context.lists.Location.updateOne({
-              id: location.id,
-              data: { company: { disconnectAll: true } },
-              query: 'id company { id name }',
-            });
-            expect(_location.id).toEqual(location.id);
-            expect(_location.company).toBe(null);
-
-            // Check the link has been broken
-            const result = await getCompanyAndLocation(context, company.id, location.id);
-            expect(result.Company.location).toBe(null);
-            expect(result.Location.company).toBe(null);
-          })
-        );
-
-        test(
           'With null A',
           runner(setupKeystone, async ({ context }) => {
             // Manually setup a connected Company <-> Location
             const { location, company } = await createCompanyAndLocation(context);
 
             // Run the query with a null operation
-            const _company = await context.lists.Company.updateOne({
+            await context.lists.Company.updateOne({
               id: company.id,
               data: { location: null },
               query: 'id location { id name }',
             });
 
-            // Check that the location is still there
-            expect(_company.id).toEqual(company.id);
-            expect(_company.location).not.toBe(null);
-            expect(_company.location.id).toEqual(location.id);
+            // Check the link has been broken
+            const result = await getCompanyAndLocation(context, company.id, location.id);
+            expect(result.Company.location).toBe(null);
+            expect(result.Location.company).toBe(null);
           })
         );
 
@@ -920,16 +832,16 @@ multiAdapterRunners().map(({ runner, provider }) =>
             const { location, company } = await createLocationAndCompany(context);
 
             // Run the query with a null operation
-            const _location = await context.lists.Location.updateOne({
+            await context.lists.Location.updateOne({
               id: location.id,
               data: { company: null },
               query: 'id company { id name }',
             });
 
-            // Check that the company is still there
-            expect(_location.id).toEqual(location.id);
-            expect(_location.company).not.toBe(null);
-            expect(_location.company.id).toEqual(company.id);
+            // Check the link has been broken
+            const result = await getCompanyAndLocation(context, company.id, location.id);
+            expect(result.Company.location).toBe(null);
+            expect(result.Location.company).toBe(null);
           })
         );
       });
