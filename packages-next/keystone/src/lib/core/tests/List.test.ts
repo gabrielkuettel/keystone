@@ -745,88 +745,50 @@ test('checkListAccess', async () => {
 
 test('getAccessControlledItem', async () => {
   const list = setup();
-  expect(
-    await list.getAccessControlledItem(1, true, { context, operation: 'read', gqlName: 'testing' })
-  ).toEqual({
+  expect(await list.getAccessControlledItem(1, true, { context })).toEqual({
     name: 'b',
     email: 'b@example.com',
     id: 1,
   });
-  await expect(
-    list.getAccessControlledItem(10, true, { context, operation: 'read', gqlName: 'testing' })
-  ).rejects.toThrow(AccessDeniedError);
+  await expect(list.getAccessControlledItem(10, true, { context })).rejects.toThrow(
+    AccessDeniedError
+  );
 
-  expect(
-    await list.getAccessControlledItem(
-      1,
-      { id: 1 },
-      { context, operation: 'read', gqlName: 'testing' }
-    )
-  ).toEqual({
+  expect(await list.getAccessControlledItem(1, { id: 1 }, { context })).toEqual({
     name: 'b',
     email: 'b@example.com',
     id: 1,
   });
-  await expect(
-    list.getAccessControlledItem(1, { id: 2 }, { context, operation: 'read', gqlName: 'testing' })
-  ).rejects.toThrow(AccessDeniedError);
+  await expect(list.getAccessControlledItem(1, { id: 2 }, { context })).rejects.toThrow(
+    AccessDeniedError
+  );
 
-  expect(
-    await list.getAccessControlledItem(
-      1,
-      { id_not: 2 },
-      { context, operation: 'read', gqlName: 'testing' }
-    )
-  ).toEqual({
+  expect(await list.getAccessControlledItem(1, { id_not: 2 }, { context })).toEqual({
     name: 'b',
     email: 'b@example.com',
     id: 1,
   });
-  await expect(
-    list.getAccessControlledItem(
-      1,
-      { id_not: 1 },
-      { context, operation: 'read', gqlName: 'testing' }
-    )
-  ).rejects.toThrow(AccessDeniedError);
+  await expect(list.getAccessControlledItem(1, { id_not: 1 }, { context })).rejects.toThrow(
+    AccessDeniedError
+  );
 
-  expect(
-    await list.getAccessControlledItem(
-      1,
-      { id_in: [1, 2] },
-      { context, operation: 'read', gqlName: 'testing' }
-    )
-  ).toEqual({
+  expect(await list.getAccessControlledItem(1, { id_in: [1, 2] }, { context })).toEqual({
     name: 'b',
     email: 'b@example.com',
     id: 1,
   });
-  await expect(
-    list.getAccessControlledItem(
-      1,
-      { id_in: [2, 3] },
-      { context, operation: 'read', gqlName: 'testing' }
-    )
-  ).rejects.toThrow(AccessDeniedError);
+  await expect(list.getAccessControlledItem(1, { id_in: [2, 3] }, { context })).rejects.toThrow(
+    AccessDeniedError
+  );
 
-  expect(
-    await list.getAccessControlledItem(
-      1,
-      { id_not_in: [2, 3] },
-      { context, operation: 'read', gqlName: 'testing' }
-    )
-  ).toEqual({
+  expect(await list.getAccessControlledItem(1, { id_not_in: [2, 3] }, { context })).toEqual({
     name: 'b',
     email: 'b@example.com',
     id: 1,
   });
-  await expect(
-    list.getAccessControlledItem(
-      1,
-      { id_not_in: [1, 2] },
-      { context, operation: 'read', gqlName: 'testing' }
-    )
-  ).rejects.toThrow(AccessDeniedError);
+  await expect(list.getAccessControlledItem(1, { id_not_in: [1, 2] }, { context })).rejects.toThrow(
+    AccessDeniedError
+  );
 });
 
 test('getAccessControlledItems', async () => {

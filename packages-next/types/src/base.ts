@@ -91,7 +91,7 @@ export type BaseKeystoneList = {
     context: KeystoneContext,
     gqlName?: string,
     info?: any
-  ): Promise<Record<string, any>>;
+  ): Promise<Record<string, any> | null>;
   createMutation(
     data: Record<string, any>,
     context: KeystoneContext,

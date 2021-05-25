@@ -148,7 +148,7 @@ export async function resolveNestedMany({
     // In the future, when WhereUniqueInput accepts more than just an id,
     // this will also resolve those queries for us too.
     const action = (where: { id: any }) =>
-      refList.itemQuery(where, context, refList.gqlNames.itemQueryName);
+      refList.itemQuery(where, context.sudo(), refList.gqlNames.itemQueryName);
     // We don't throw if any fail; we're only interested in the ones this user has
     // access to read (and hence remove from the list)
     const disconnectItems = (await pSettle((withoutId || []).map(action)))
@@ -168,7 +168,7 @@ export async function resolveNestedMany({
     // In the future, when WhereUniqueInput accepts more than just an id,
     // this will also resolve those queries for us too.
     const [connectedItems, connectErrors] = await _runActions(
-      where => refList.itemQuery({ where }, context, refList.gqlNames.itemQueryName),
+      where => refList.itemQuery({ where }, context.sudo(), refList.gqlNames.itemQueryName),
       input.connect,
       ['connect']
     );
@@ -242,7 +242,7 @@ export async function resolveNestedSingle({
         idToDisconnect = (
           await refList.itemQuery(
             { where: input.disconnect },
-            context,
+            context.sudo(),
             refList.gqlNames.itemQueryName
           )
         ).id.toString();
@@ -265,7 +265,7 @@ export async function resolveNestedSingle({
   if (input.connect) {
     operation = 'connect';
     method = () =>
-      refList.itemQuery({ where: input.connect }, context, refList.gqlNames.itemQueryName);
+      refList.itemQuery({ where: input.connect }, context.sudo(), refList.gqlNames.itemQueryName);
   } else if (input.create) {
     operation = 'create';
     method = () => refList.createMutation(input.create, context, mutationState);

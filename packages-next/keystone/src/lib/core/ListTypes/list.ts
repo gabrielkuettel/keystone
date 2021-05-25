@@ -400,26 +400,8 @@ export class List implements BaseKeystoneList {
   async getAccessControlledItem(
     id: IdType,
     access: any,
-    {
-      context,
-      operation,
-      gqlName,
-      info,
-    }: {
-      context: KeystoneContext;
-      operation: 'create' | 'read' | 'update' | 'delete';
-      gqlName?: string;
-      info?: any;
-    }
+    { context, info }: { context: KeystoneContext; info?: any }
   ) {
-    const _throwAccessDenied = () => {
-      // If the client handles errors correctly, it should be able to
-      // receive partial data (for the fields the user has access to),
-      // and then an `errors` array of AccessDeniedError's
-      throwAccessDenied(opToType[operation], gqlName, { itemId: id });
-    };
-
-    let item;
     if (
       (access.id && access.id !== id) ||
       (access.id_not && access.id_not === id) ||
@@ -430,36 +412,34 @@ export class List implements BaseKeystoneList {
       // the user has access to. So we have to do a check here to see if the
       // ID they're requesting matches that ID.
       // Nice side-effect: We can throw without having to ever query the DB.
-      _throwAccessDenied();
+      return null;
     } else {
       // NOTE: The fields will be filtered by the ACL checking in gqlFieldResolvers()
       // We only want 1 item, don't make the DB do extra work
       // NOTE: Order in where: { ... } doesn't matter, if `access.id !== id`, it will
       // have been caught earlier, so this spread and overwrite can only
       // ever be additive or overwrite with the same value
-      item = (
-        (await this._itemsQuery(
-          { first: 1, where: { ...access, id } },
-          { context, info }
-        )) as Record<string, any>[]
-      )[0];
+      const items = (await this._itemsQuery(
+        { first: 1, where: { ...access, id } },
+        { context, info }
+      )) as Record<string, any>[];
+      if (items.length < 1 || !items[0]) {
+        // Throwing an AccessDenied here if the item isn't found because we're
+        // strict about accidentally leaking information (that the item doesn't
+        // exist)
+        // NOTE: There is a potential security risk here if we were to
+        // further check the existence of an item with the given ID: It'd be
+        // possible to figure out if records with particular IDs exist in
+        // the DB even if the user doesn't have access (eg; check a bunch of
+        // IDs, and the ones that return AccessDenied exist, and the ones
+        // that return null do not exist). Similar to how S3 returns 403's
+        // always instead of ever returning 404's.
+        // Our version is to always throw if not found.
+        return null;
+      }
+      // Found the item, and it passed the filter test
+      return items[0] as { id: IdType } & Record<string, any>;
     }
-    if (!item) {
-      // Throwing an AccessDenied here if the item isn't found because we're
-      // strict about accidentally leaking information (that the item doesn't
-      // exist)
-      // NOTE: There is a potential security risk here if we were to
-      // further check the existence of an item with the given ID: It'd be
-      // possible to figure out if records with particular IDs exist in
-      // the DB even if the user doesn't have access (eg; check a bunch of
-      // IDs, and the ones that return AccessDenied exist, and the ones
-      // that return null do not exist). Similar to how S3 returns 403's
-      // always instead of ever returning 404's.
-      // Our version is to always throw if not found.
-      _throwAccessDenied();
-    }
-    // Found the item, and it passed the filter test
-    return item as { id: IdType } & Record<string, any>;
   }
 
   async getAccessControlledItems(
@@ -531,7 +511,8 @@ export class List implements BaseKeystoneList {
     info: any,
     from?: any
   ) {
-    const access = await this.checkListAccess(context, undefined, 'read', { gqlName });
+    const access = await this._returnListAccess(context, undefined, 'read', { gqlName });
+    if (!access) return [];
 
     return this._itemsQuery(mergeWhereClause(args, access), { context, info, from }) as Promise<
       Record<string, any>[]
@@ -550,7 +531,8 @@ export class List implements BaseKeystoneList {
       // on what the user requested
       // Evaluation takes place in ../Keystone/index.js
       getCount: async () => {
-        const access = await this.checkListAccess(context, undefined, 'read', { gqlName });
+        const access = await this._returnListAccess(context, undefined, 'read', { gqlName });
+        if (!access) return 0;
 
         const { count } = (await this._itemsQuery(mergeWhereClause(args, access), {
           meta: true,
@@ -572,12 +554,13 @@ export class List implements BaseKeystoneList {
   ) {
     const operation = 'read';
 
-    const access = await this.checkListAccess(context, undefined, operation, {
+    const access = await this._returnListAccess(context, undefined, operation, {
       gqlName,
       itemId: id,
     });
+    if (!access) return null;
 
-    return this.getAccessControlledItem(id, access, { context, operation, gqlName, info });
+    return this.getAccessControlledItem(id, access, { context, info });
   }
 
   async _itemsQuery(
@@ -898,17 +881,16 @@ export class List implements BaseKeystoneList {
 
     const access = await this.checkListAccess(context, data, operation, extraData);
 
-    const existingItem = await this.getAccessControlledItem(id, access, {
-      context,
-      operation,
-      gqlName,
-    });
+    const existingItem = await this.getAccessControlledItem(id, access, { context });
+    if (existingItem === null) {
+      throwAccessDenied(opToType[operation], gqlName, { itemId: id });
+    } else {
+      const itemsToUpdate = [{ existingItem, data }];
 
-    const itemsToUpdate = [{ existingItem, data }];
+      await this.checkFieldAccess(operation, itemsToUpdate, context, extraData);
 
-    await this.checkFieldAccess(operation, itemsToUpdate, context, extraData);
-
-    return await this._updateSingle(id, data, existingItem, context, mutationState);
+      return await this._updateSingle(id, data, existingItem, context, mutationState);
+    }
   }
 
   async updateManyMutation(
@@ -1051,13 +1033,13 @@ export class List implements BaseKeystoneList {
       itemId: id,
     });
 
-    const existingItem = await this.getAccessControlledItem(id, access, {
-      context,
-      operation,
-      gqlName,
-    });
+    const existingItem = await this.getAccessControlledItem(id, access, { context });
 
-    return this._deleteSingle(existingItem, context, mutationState);
+    if (existingItem === null) {
+      throwAccessDenied(opToType[operation], gqlName, { itemId: id });
+    } else {
+      return this._deleteSingle(existingItem, context, mutationState);
+    }
   }
 
   async deleteManyMutation(ids: IdType[], context: KeystoneContext, mutationState?: MutationState) {
