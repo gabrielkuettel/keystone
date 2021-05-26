@@ -3,7 +3,7 @@ import { CorsOptions } from 'cors';
 import type { GraphQLSchema } from 'graphql';
 import type { Config } from 'apollo-server-express';
 
-import type { ImageMode, FileMode, KeystoneContext } from '..';
+import type { AssetMode, KeystoneContext } from '..';
 
 import { CreateContext } from '../core';
 import type { BaseKeystone } from '../base';
@@ -16,6 +16,7 @@ import type {
   MaybeItemFunction,
   // CacheHint,
 } from './lists';
+import { CloudConfig } from './cloud';
 import type { BaseFields, FieldType, FieldConfig } from './fields';
 import type { ListAccessControl, FieldAccessControl } from './access-control';
 import type { ListHooks } from './hooks';
@@ -26,6 +27,7 @@ export type KeystoneConfig = {
   ui?: AdminUIConfig;
   server?: ServerConfig;
   session?: () => SessionStrategy<any>;
+  cloud?: CloudConfig;
   graphql?: GraphQLConfig;
   extendGraphqlSchema?: ExtendGraphqlSchema;
   files?: FilesConfig;
@@ -149,7 +151,7 @@ export type ExtendGraphqlSchema = (schema: GraphQLSchema, keystone: BaseKeystone
 // config.files
 
 export type FilesConfig = {
-  upload: FileMode;
+  upload: AssetMode;
   transformFilename?: (str: string) => string;
   local?: {
     /**
@@ -168,7 +170,7 @@ export type FilesConfig = {
 // config.images
 
 export type ImagesConfig = {
-  upload: ImageMode;
+  upload: AssetMode;
   local?: {
     /**
      * The path local images are uploaded to.
