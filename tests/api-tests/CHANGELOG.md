@@ -1,5 +1,55 @@
 # @keystonejs/api-tests
 
+## 11.0.1
+
+### Patch Changes
+
+- [#5767](https://github.com/keystonejs/keystone/pull/5767) [`02af04c03`](https://github.com/keystonejs/keystone/commit/02af04c03c96c26c273cd49eda5b4a132e02a26a) Thanks [@timleslie](https://github.com/timleslie)! - Deprecated the `sortBy` GraphQL filter. Updated the `orderBy` GraphQL filter with an improved API.
+
+  Previously a `User` list's `allUsers` query would have the argument:
+
+  ```graphql
+  orderBy: String
+  ```
+
+  The new API gives it the argument:
+
+  ```graphql
+  orderBy: [UserOrderByInput!]! = []
+  ```
+
+  where
+
+  ```graphql
+  input UserOrderByInput {
+    id: OrderDirection
+    name: OrderDirection
+    score: OrderDirection
+  }
+
+  enum OrderDirection {
+    asc
+    desc
+  }
+  ```
+
+  Rather than writing `allUsers(orderBy: "name_ASC")` you now write `allUsers(orderBy: { name: asc })`. You can also now order by multiple fields, e.g. `allUsers(orderBy: [{ score: asc }, { name: asc }])`. Each `UserOrderByInput` must have exactly one key, or else an error will be returned.
+
+* [#5791](https://github.com/keystonejs/keystone/pull/5791) [`9de71a9fb`](https://github.com/keystonejs/keystone/commit/9de71a9fb0d3b7f5f05c0d908bebdb818723fd4b) Thanks [@timleslie](https://github.com/timleslie)! - Changed the return type of `allItems(...)` from `[User]` to `[User!]`, as this API can never have `null` items in the return array.
+
+- [#5769](https://github.com/keystonejs/keystone/pull/5769) [`08478b8a7`](https://github.com/keystonejs/keystone/commit/08478b8a7bb9fe5932c7f74f9f6d3af75a0a5394) Thanks [@timleslie](https://github.com/timleslie)! - The GraphQL query `_all<Items>Meta { count }` generated for each list has been deprecated in favour of a new query `<items>Count`, which directy returns the count.
+
+  A `User` list would have the following query added to the API:
+
+  ```graphql
+  usersCount(where: UserWhereInput! = {}): Int
+  ```
+
+- Updated dependencies [[`b9c828fb0`](https://github.com/keystonejs/keystone/commit/b9c828fb0d6e587976dbd0dc4e87004bce3b2ef7), [`02af04c03`](https://github.com/keystonejs/keystone/commit/02af04c03c96c26c273cd49eda5b4a132e02a26a), [`08478b8a7`](https://github.com/keystonejs/keystone/commit/08478b8a7bb9fe5932c7f74f9f6d3af75a0a5394), [`7bda87ea7`](https://github.com/keystonejs/keystone/commit/7bda87ea7f11e0faceccc6ab3f715c72b07c129b), [`bb4f4ac91`](https://github.com/keystonejs/keystone/commit/bb4f4ac91c3ed70393774f744075971453a12aba)]:
+  - @keystone-next/types@19.0.0
+  - @keystone-next/test-utils-legacy@19.0.1
+  - @keystone-next/utils-legacy@11.0.1
+
 ## 11.0.0
 
 ### Major Changes

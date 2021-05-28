@@ -1,5 +1,60 @@
 # @keystone-next/types
 
+## 19.0.0
+
+### Major Changes
+
+- [#5815](https://github.com/keystonejs/keystone/pull/5815) [`b9c828fb0`](https://github.com/keystonejs/keystone/commit/b9c828fb0d6e587976dbd0dc4e87004bce3b2ef7) Thanks [@timleslie](https://github.com/timleslie)! - Fixed the type of `originalInput` in the argument to `defaultValue`.
+
+* [#5802](https://github.com/keystonejs/keystone/pull/5802) [`7bda87ea7`](https://github.com/keystonejs/keystone/commit/7bda87ea7f11e0faceccc6ab3f715c72b07c129b) Thanks [@timleslie](https://github.com/timleslie)! - Changed `config.session` to access a `SessionStrategy` object, rather than a `() => SessionStrategy` function. You will only need to change your configuration if you're using a customised session strategy.
+
+### Patch Changes
+
+- [#5767](https://github.com/keystonejs/keystone/pull/5767) [`02af04c03`](https://github.com/keystonejs/keystone/commit/02af04c03c96c26c273cd49eda5b4a132e02a26a) Thanks [@timleslie](https://github.com/timleslie)! - Deprecated the `sortBy` GraphQL filter. Updated the `orderBy` GraphQL filter with an improved API.
+
+  Previously a `User` list's `allUsers` query would have the argument:
+
+  ```graphql
+  orderBy: String
+  ```
+
+  The new API gives it the argument:
+
+  ```graphql
+  orderBy: [UserOrderByInput!]! = []
+  ```
+
+  where
+
+  ```graphql
+  input UserOrderByInput {
+    id: OrderDirection
+    name: OrderDirection
+    score: OrderDirection
+  }
+
+  enum OrderDirection {
+    asc
+    desc
+  }
+  ```
+
+  Rather than writing `allUsers(orderBy: "name_ASC")` you now write `allUsers(orderBy: { name: asc })`. You can also now order by multiple fields, e.g. `allUsers(orderBy: [{ score: asc }, { name: asc }])`. Each `UserOrderByInput` must have exactly one key, or else an error will be returned.
+
+* [#5769](https://github.com/keystonejs/keystone/pull/5769) [`08478b8a7`](https://github.com/keystonejs/keystone/commit/08478b8a7bb9fe5932c7f74f9f6d3af75a0a5394) Thanks [@timleslie](https://github.com/timleslie)! - The GraphQL query `_all<Items>Meta { count }` generated for each list has been deprecated in favour of a new query `<items>Count`, which directy returns the count.
+
+  A `User` list would have the following query added to the API:
+
+  ```graphql
+  usersCount(where: UserWhereInput! = {}): Int
+  ```
+
+- [#5787](https://github.com/keystonejs/keystone/pull/5787) [`bb4f4ac91`](https://github.com/keystonejs/keystone/commit/bb4f4ac91c3ed70393774f744075971453a12aba) Thanks [@timleslie](https://github.com/timleslie)! - Replaced `req, session, createContext` args to `config.ui.pageMiddleware` with a `context` arg.
+
+- Updated dependencies [[`b9c828fb0`](https://github.com/keystonejs/keystone/commit/b9c828fb0d6e587976dbd0dc4e87004bce3b2ef7), [`a6a444acd`](https://github.com/keystonejs/keystone/commit/a6a444acd23f2590d9812872441cafb5d088c48e), [`59421c039`](https://github.com/keystonejs/keystone/commit/59421c0399368e56e46537c1c687daa27f5912d0), [`0617c81ea`](https://github.com/keystonejs/keystone/commit/0617c81eacc88e40bdd21bacab285d674b171a4a), [`02af04c03`](https://github.com/keystonejs/keystone/commit/02af04c03c96c26c273cd49eda5b4a132e02a26a), [`590bb1fe9`](https://github.com/keystonejs/keystone/commit/590bb1fe9254c2f8feff7e3a0e2e964610116f95), [`19a756496`](https://github.com/keystonejs/keystone/commit/19a7564964d9dcdc94ecdda9c0a0e92c539eb309)]:
+  - @keystone-next/fields@10.0.0
+  - @keystone-next/adapter-prisma-legacy@8.0.0
+
 ## 18.0.0
 
 ### Major Changes

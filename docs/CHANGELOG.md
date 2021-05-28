@@ -1,5 +1,60 @@
 # @keystone-next/website
 
+## 3.1.0
+
+### Minor Changes
+
+- [#5774](https://github.com/keystonejs/keystone/pull/5774) [`107eeb037`](https://github.com/keystonejs/keystone/commit/107eeb0374e214b69be3727ca955a9f76e1468bb) Thanks [@jonowu](https://github.com/jonowu)! - Added `sameSite` option to session options for cookies
+
+### Patch Changes
+
+- [#5771](https://github.com/keystonejs/keystone/pull/5771) [`51aca916b`](https://github.com/keystonejs/keystone/commit/51aca916b0fd03bdd9100e13acbb86f49b494c0f) Thanks [@raveling](https://github.com/raveling)! - New tutorial for Keystone Lite. First draft.
+
+* [#5767](https://github.com/keystonejs/keystone/pull/5767) [`02af04c03`](https://github.com/keystonejs/keystone/commit/02af04c03c96c26c273cd49eda5b4a132e02a26a) Thanks [@timleslie](https://github.com/timleslie)! - Deprecated the `sortBy` GraphQL filter. Updated the `orderBy` GraphQL filter with an improved API.
+
+  Previously a `User` list's `allUsers` query would have the argument:
+
+  ```graphql
+  orderBy: String
+  ```
+
+  The new API gives it the argument:
+
+  ```graphql
+  orderBy: [UserOrderByInput!]! = []
+  ```
+
+  where
+
+  ```graphql
+  input UserOrderByInput {
+    id: OrderDirection
+    name: OrderDirection
+    score: OrderDirection
+  }
+
+  enum OrderDirection {
+    asc
+    desc
+  }
+  ```
+
+  Rather than writing `allUsers(orderBy: "name_ASC")` you now write `allUsers(orderBy: { name: asc })`. You can also now order by multiple fields, e.g. `allUsers(orderBy: [{ score: asc }, { name: asc }])`. Each `UserOrderByInput` must have exactly one key, or else an error will be returned.
+
+- [#5791](https://github.com/keystonejs/keystone/pull/5791) [`9de71a9fb`](https://github.com/keystonejs/keystone/commit/9de71a9fb0d3b7f5f05c0d908bebdb818723fd4b) Thanks [@timleslie](https://github.com/timleslie)! - Changed the return type of `allItems(...)` from `[User]` to `[User!]`, as this API can never have `null` items in the return array.
+
+* [#5769](https://github.com/keystonejs/keystone/pull/5769) [`08478b8a7`](https://github.com/keystonejs/keystone/commit/08478b8a7bb9fe5932c7f74f9f6d3af75a0a5394) Thanks [@timleslie](https://github.com/timleslie)! - The GraphQL query `_all<Items>Meta { count }` generated for each list has been deprecated in favour of a new query `<items>Count`, which directy returns the count.
+
+  A `User` list would have the following query added to the API:
+
+  ```graphql
+  usersCount(where: UserWhereInput! = {}): Int
+  ```
+
+* Updated dependencies [[`3a7acc2c5`](https://github.com/keystonejs/keystone/commit/3a7acc2c5114fbcbde994d1f4c6cc0b21c572ec0)]:
+  - @keystone-ui/fields@4.1.0
+  - @keystone-next/fields-document@6.0.1
+
 ## 3.0.0
 
 ### Major Changes
